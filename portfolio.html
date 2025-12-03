@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Tracker</title>
+    <script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000000;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            padding: 40px 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 3rem;
+            margin-bottom: 40px;
+            background: #ffffff;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .controls {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 40px;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .control-group label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #aaaaaa;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .control-group input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 16px 20px;
+            font-size: 1rem;
+            color: #ffffff;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .control-group input:focus {
+            border-color: #00ccff;
+            box-shadow: 0 0 20px rgba(0, 204, 255, 0.2);
+        }
+
+        .control-group input::placeholder {
+            color: #666666;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #00ff88, #00ccff);
+            border: none;
+            border-radius: 12px;
+            padding: 16px 32px;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #000000;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            border-radius: 20px;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0.1;
+            z-index: 0;
+        }
+
+        .stat-card.green {
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.15) 0%, rgba(0, 200, 100, 0.05) 100%);
+        }
+
+        .stat-card.green::before {
+            background: radial-gradient(circle at top right, #00ff88, transparent);
+        }
+
+        .stat-card.blue {
+            background: linear-gradient(135deg, rgba(0, 204, 255, 0.15) 0%, rgba(0, 150, 255, 0.05) 100%);
+        }
+
+        .stat-card.blue::before {
+            background: radial-gradient(circle at top right, #00ccff, transparent);
+        }
+
+        .stat-card.purple {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(139, 92, 246, 0.05) 100%);
+        }
+
+        .stat-card.purple::before {
+            background: radial-gradient(circle at top right, #a855f7, transparent);
+        }
+
+        .stat-card.orange {
+            background: linear-gradient(135deg, rgba(255, 159, 64, 0.15) 0%, rgba(255, 120, 0, 0.05) 100%);
+        }
+
+        .stat-card.orange::before {
+            background: radial-gradient(circle at top right, #ff9f40, transparent);
+        }
+
+        .stat-card h3 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            opacity: 0.7;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-card p {
+            font-size: 2.5rem;
+            font-weight: 800;
+            position: relative;
+            z-index: 1;
+            letter-spacing: -1px;
+        }
+
+        .stat-card.green p {
+            color: #00ff88;
+        }
+
+        .stat-card.blue p {
+            color: #00ccff;
+        }
+
+        .stat-card.purple p {
+            color: #a855f7;
+        }
+
+        .stat-card.orange p {
+            color: #ff9f40;
+        }
+
+        .chart-container {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+
+        .chart-container h2 {
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            font-weight: 700;
+        }
+
+        .table-container {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+
+        .table-container h2 {
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            font-weight: 700;
+        }
+
+        .table-wrapper {
+            max-height: 600px;
+            overflow-y: auto;
+            border-radius: 12px;
+        }
+
+        .table-wrapper::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        thead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: #111111;
+        }
+
+        th {
+            padding: 16px;
+            text-align: left;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #888888;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        th:nth-child(n+2) {
+            text-align: right;
+        }
+
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.9rem;
+        }
+
+        td:nth-child(n+2) {
+            text-align: right;
+        }
+
+        tbody tr {
+            transition: background 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .week-header {
+            background: linear-gradient(135deg, rgba(0, 204, 255, 0.15) 0%, rgba(0, 150, 255, 0.05) 100%);
+        }
+
+        .week-header td {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #00ccff;
+            border-bottom: 2px solid rgba(0, 204, 255, 0.3);
+            padding: 18px 16px;
+        }
+
+        .week-summary {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .week-summary td {
+            font-weight: 600;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            padding: 16px;
+        }
+
+        .positive {
+            color: #00ff88;
+            font-weight: 600;
+        }
+
+        .negative {
+            color: #ff3b30;
+            font-weight: 600;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #666666;
+            font-size: 1.2rem;
+        }
+
+        .loading::after {
+            content: '';
+            animation: dots 1.5s infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+
+        .error {
+            background: rgba(255, 59, 48, 0.1);
+            border: 1px solid rgba(255, 59, 48, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            color: #ff3b30;
+            margin-bottom: 20px;
+        }
+
+        .status {
+            text-align: center;
+            padding: 20px;
+            color: #666666;
+            font-size: 0.9rem;
+        }
+
+        .status.connected {
+            color: #00ff88;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    
+        /* Navigation */
+        .site-nav {
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-brand {
+            font-size: 1.3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00ff88, #00ccff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-links a {
+            color: #aaaaaa;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .nav-links a:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-links a.active {
+            color: #00ff88;
+            background: rgba(0, 255, 136, 0.1);
+            border-color: rgba(0, 255, 136, 0.3);
+        }
+
+        .logout-btn {
+            background: rgba(255, 59, 48, 0.1) !important;
+            border: 1px solid rgba(255, 59, 48, 0.3) !important;
+            color: #ff3b30 !important;
+            cursor: pointer;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 59, 48, 0.2) !important;
+            border-color: rgba(255, 59, 48, 0.5) !important;
+        }
+
+        /* Password Screen */
+        .password-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .password-screen.hidden {
+            display: none;
+        }
+
+        .password-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 50px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .password-box h2 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .password-box > p {
+            color: #888888;
+            margin-bottom: 30px;
+            font-size: 0.95rem;
+        }
+
+        .password-box input[type="password"] {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 16px 20px;
+            font-size: 1rem;
+            color: #ffffff;
+            outline: none;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            text-align: center;
+            letter-spacing: 3px;
+        }
+
+        .password-box input[type="password"]:focus {
+            border-color: #00ccff;
+            box-shadow: 0 0 20px rgba(0, 204, 255, 0.2);
+        }
+
+        .password-box button {
+            width: 100%;
+            background: linear-gradient(135deg, #00ff88, #00ccff);
+            border: none;
+            border-radius: 12px;
+            padding: 16px 32px;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #000000;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .password-box button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .password-error {
+            color: #ff3b30;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .password-error.show {
+            display: block;
+        }
+
+        .page-content {
+            display: none;
+        }
+
+        .page-content.visible {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .site-nav {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Password Screen -->
+    <div class="password-screen" id="passwordScreen">
+        <div class="password-box">
+            <h2>🔐 Trading Dashboard</h2>
+            <p>Enter password to continue</p>
+            <input type="password" id="passwordInput" placeholder="••••••••" onkeypress="if(event.key === 'Enter') checkPassword()">
+            <button onclick="checkPassword()">Unlock</button>
+            <p class="password-error" id="passwordError">Incorrect password. Try again.</p>
+        </div>
+    </div>
+
+
+    <div class="page-content" id="pageContent">
+
+    <nav class="site-nav">
+        <div class="nav-brand">TRADING DASHBOARD</div>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+                <a href="calculators.html">Calculators</a>
+                <a href="portfolio.html" class="active">Portfolio</a>
+                <a href="milestones.html">Milestones</a>
+                <a href="#" class="logout-btn" onclick="logout()">Logout</a>
+        </div>
+    </nav>
+
+
+    <div class="container">
+        <h1>PORTFOLIO TRACKER</h1>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="sheetUrl">Google Sheet URL</label>
+                <input type="text" id="sheetUrl" placeholder="Paste your published Google Sheet CSV URL here...">
+            </div>
+            <button class="btn" id="loadBtn" onclick="loadData()">Load Portfolio Data</button>
+            <div class="status" id="status"></div>
+        </div>
+
+        <div id="errorContainer"></div>
+
+        <div id="content" style="display: none;">
+            <div class="stats-grid">
+                <div class="stat-card blue">
+                    <h3>Initial Portfolio</h3>
+                    <p id="initialBalance">$0</p>
+                </div>
+                <div class="stat-card green">
+                    <h3>Final Portfolio</h3>
+                    <p id="finalBalance">$0</p>
+                </div>
+                <div class="stat-card orange">
+                    <h3>Total Realized PnL</h3>
+                    <p id="totalPnL">$0</p>
+                </div>
+                <div class="stat-card purple">
+                    <h3>Percent Gain</h3>
+                    <p id="percentGain">0.00%</p>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h2>Portfolio Growth</h2>
+                <div id="chart"></div>
+            </div>
+
+            <div class="table-container">
+                <h2>Trade History by Week</h2>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Initial Balance</th>
+                                <th>Realized PnL</th>
+                                <th>Percent Gain</th>
+                                <th>Final Portfolio</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tradesTable">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Week starts: Nov 30, Dec 7, Dec 14, Dec 21, Dec 28, etc.
+        const FIRST_WEEK_START = new Date(2025, 10, 30); // Nov 30, 2025 (month is 0-indexed)
+
+        function getWeekNumber(dateStr) {
+            const date = parseDate(dateStr);
+            if (!date) return 0;
+            
+            const diffTime = date.getTime() - FIRST_WEEK_START.getTime();
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            return Math.floor(diffDays / 7) + 1;
+        }
+
+        function getWeekRange(weekNum) {
+            const startDate = new Date(FIRST_WEEK_START);
+            startDate.setDate(startDate.getDate() + (weekNum - 1) * 7);
+            
+            const endDate = new Date(startDate);
+            endDate.setDate(endDate.getDate() + 6);
+            
+            const formatDate = (d) => {
+                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                return `${months[d.getMonth()]} ${d.getDate()}`;
+            };
+            
+            return `${formatDate(startDate)} - ${formatDate(endDate)}`;
+        }
+
+        function parseDate(dateStr) {
+            if (!dateStr) return null;
+            
+            // Handle various date formats
+            const parts = dateStr.split(/[-\/]/);
+            if (parts.length === 3) {
+                let year, month, day;
+                
+                if (parts[0].length === 4) {
+                    // YYYY-MM-DD
+                    year = parseInt(parts[0]);
+                    month = parseInt(parts[1]) - 1;
+                    day = parseInt(parts[2]);
+                } else {
+                    // MM/DD/YYYY or MM-DD-YYYY
+                    month = parseInt(parts[0]) - 1;
+                    day = parseInt(parts[1]);
+                    year = parseInt(parts[2]);
+                }
+                
+                return new Date(year, month, day);
+            }
+            
+            return new Date(dateStr);
+        }
+
+        function showError(message) {
+            document.getElementById('errorContainer').innerHTML = `
+                <div class="error">${message}</div>
+            `;
+        }
+
+        function clearError() {
+            document.getElementById('errorContainer').innerHTML = '';
+        }
+
+        function updateStatus(message, isConnected = false) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = 'status' + (isConnected ? ' connected' : '');
+        }
+
+        function parseCSV(csv) {
+            const lines = csv.trim().split('\n');
+            const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+            const data = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
+                if (values.length >= 3 && values[0]) {
+                    const row = {};
+                    headers.forEach((header, index) => {
+                        row[header] = values[index] || '';
+                    });
+                    data.push(row);
+                }
+            }
+
+            return data;
+        }
+
+        function parseNumber(str) {
+            if (!str) return 0;
+            return parseFloat(str.replace(/[$,]/g, '')) || 0;
+        }
+
+        function formatCurrency(num) {
+            const absNum = Math.abs(num);
+            const formatted = '$' + absNum.toLocaleString('en-US', { 
+                minimumFractionDigits: 2, 
+                maximumFractionDigits: 2 
+            });
+            return num < 0 ? '-' + formatted : formatted;
+        }
+
+        function formatPercent(num) {
+            return num.toFixed(2) + '%';
+        }
+
+        async function loadData() {
+            const url = document.getElementById('sheetUrl').value.trim();
+            
+            if (!url) {
+                showError('Please enter a Google Sheet URL');
+                return;
+            }
+
+            clearError();
+            updateStatus('Loading data...');
+            document.getElementById('loadBtn').disabled = true;
+
+            try {
+                let csv = null;
+                
+                // Try direct fetch first
+                try {
+                    const response = await fetch(url);
+                    if (response.ok) {
+                        csv = await response.text();
+                    }
+                } catch (e) {
+                    console.log('Direct fetch failed, trying CORS proxy...');
+                }
+
+                // If direct fetch failed, try CORS proxy
+                if (!csv) {
+                    const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(url);
+                    const response = await fetch(proxyUrl);
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch data. Make sure the sheet is published to the web as CSV.');
+                    }
+                    csv = await response.text();
+                }
+
+                const data = parseCSV(csv);
+
+                if (data.length === 0) {
+                    throw new Error('No data found in the spreadsheet. Check that your headers match: Date, Initial Balance, Realized PnL');
+                }
+
+                displayData(data);
+                updateStatus('✓ Data loaded successfully', true);
+
+            } catch (error) {
+                showError('Error: ' + error.message + '<br><br><strong>Troubleshooting:</strong><br>1. Make sure the Google Sheet is published (File → Share → Publish to web)<br>2. Verify you selected CSV format when publishing<br>3. Check that your column headers are exactly: Date, Initial Balance, Realized PnL');
+                updateStatus('Failed to load data');
+            } finally {
+                document.getElementById('loadBtn').disabled = false;
+            }
+        }
+
+        function displayData(data) {
+            // Calculate totals
+            const initialBalance = parseNumber(data[0]['Initial Balance']);
+            let cumulativeBalance = initialBalance;
+            let totalPnL = 0;
+
+            // Process each row and group by week
+            const weeklyData = {};
+            const processedData = [];
+
+            data.forEach((row, index) => {
+                const pnl = parseNumber(row['Realized PnL']);
+                totalPnL += pnl;
+                cumulativeBalance = initialBalance + totalPnL;
+                
+                const weekNum = getWeekNumber(row['Date']);
+                
+                const trade = {
+                    date: row['Date'],
+                    initialBalance: parseNumber(row['Initial Balance']),
+                    pnl: pnl,
+                    percentGain: ((cumulativeBalance - initialBalance) / initialBalance) * 100,
+                    finalPortfolio: cumulativeBalance,
+                    weekNum: weekNum
+                };
+                
+                processedData.push(trade);
+                
+                if (!weeklyData[weekNum]) {
+                    weeklyData[weekNum] = {
+                        trades: [],
+                        totalPnL: 0,
+                        startBalance: cumulativeBalance - pnl,
+                        endBalance: cumulativeBalance
+                    };
+                }
+                
+                weeklyData[weekNum].trades.push(trade);
+                weeklyData[weekNum].totalPnL += pnl;
+                weeklyData[weekNum].endBalance = cumulativeBalance;
+            });
+
+            const finalBalance = processedData[processedData.length - 1].finalPortfolio;
+            const overallPercentGain = ((finalBalance - initialBalance) / initialBalance) * 100;
+
+            // Update stats
+            document.getElementById('initialBalance').textContent = formatCurrency(initialBalance);
+            document.getElementById('finalBalance').textContent = formatCurrency(finalBalance);
+            document.getElementById('totalPnL').textContent = formatCurrency(totalPnL);
+            document.getElementById('percentGain').textContent = formatPercent(overallPercentGain);
+
+            // Update PnL color
+            const pnlElement = document.getElementById('totalPnL');
+            pnlElement.style.color = totalPnL >= 0 ? '#00ff88' : '#ff3b30';
+
+            const percentElement = document.getElementById('percentGain');
+            percentElement.style.color = overallPercentGain >= 0 ? '#a855f7' : '#ff3b30';
+
+            // Update chart
+            const trace = {
+                x: processedData.map(t => t.date),
+                y: processedData.map(t => t.finalPortfolio),
+                type: 'scatter',
+                mode: 'lines+markers',
+                line: {
+                    color: '#00ff88',
+                    width: 3
+                },
+                marker: {
+                    size: 6,
+                    color: '#00ff88'
+                },
+                fill: 'tozeroy',
+                fillcolor: 'rgba(0, 255, 136, 0.1)',
+                name: 'Portfolio Value'
+            };
+
+            const layout = {
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                font: {
+                    color: '#ffffff',
+                    family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif'
+                },
+                xaxis: {
+                    title: 'Date',
+                    gridcolor: 'rgba(255, 255, 255, 0.1)',
+                    zerolinecolor: 'rgba(255, 255, 255, 0.1)'
+                },
+                yaxis: {
+                    title: 'Portfolio Value ($)',
+                    gridcolor: 'rgba(255, 255, 255, 0.1)',
+                    zerolinecolor: 'rgba(255, 255, 255, 0.1)'
+                },
+                margin: { t: 20, r: 20, b: 60, l: 80 },
+                hovermode: 'x unified',
+                showlegend: false
+            };
+
+            const config = {
+                responsive: true,
+                displayModeBar: false
+            };
+
+            Plotly.newPlot('chart', [trace], layout, config);
+
+            // Update table with weekly grouping
+            const tbody = document.getElementById('tradesTable');
+            let tableHTML = '';
+            
+            const sortedWeeks = Object.keys(weeklyData).map(Number).sort((a, b) => a - b);
+            
+            sortedWeeks.forEach(weekNum => {
+                const week = weeklyData[weekNum];
+                const weekRange = getWeekRange(weekNum);
+                const weekPercentGain = (week.totalPnL / initialBalance) * 100;
+                
+                // Week header
+                tableHTML += `
+                    <tr class="week-header">
+                        <td colspan="5">Week ${weekNum}: ${weekRange}</td>
+                    </tr>
+                `;
+                
+                // Individual trades
+                week.trades.forEach(trade => {
+                    tableHTML += `
+                        <tr>
+                            <td>${trade.date}</td>
+                            <td>${formatCurrency(trade.initialBalance)}</td>
+                            <td class="${trade.pnl >= 0 ? 'positive' : 'negative'}">${formatCurrency(trade.pnl)}</td>
+                            <td class="${trade.percentGain >= 0 ? 'positive' : 'negative'}">${formatPercent(trade.percentGain)}</td>
+                            <td><strong>${formatCurrency(trade.finalPortfolio)}</strong></td>
+                        </tr>
+                    `;
+                });
+                
+                // Week summary
+                tableHTML += `
+                    <tr class="week-summary">
+                        <td>Week ${weekNum} Total</td>
+                        <td></td>
+                        <td class="${week.totalPnL >= 0 ? 'positive' : 'negative'}"><strong>${formatCurrency(week.totalPnL)}</strong></td>
+                        <td class="${weekPercentGain >= 0 ? 'positive' : 'negative'}"><strong>${formatPercent(weekPercentGain)}</strong></td>
+                        <td><strong>${formatCurrency(week.endBalance)}</strong></td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = tableHTML;
+
+            // Show content
+            document.getElementById('content').style.display = 'block';
+        }
+
+        // Check for URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const sheetParam = urlParams.get('sheet');
+        if (sheetParam) {
+            document.getElementById('sheetUrl').value = sheetParam;
+            loadData();
+        }
+    </script>
+
+    </div>
+
+    <script>
+        // CHANGE THIS PASSWORD TO YOUR OWN
+        const SITE_PASSWORD = 'trading123';
+
+        function checkAuth() {
+            const isAuth = sessionStorage.getItem('authenticated');
+            if (isAuth === 'true') {
+                document.getElementById('passwordScreen').classList.add('hidden');
+                document.getElementById('pageContent').classList.add('visible');
+            }
+        }
+
+        function checkPassword() {
+            const input = document.getElementById('passwordInput');
+            const error = document.getElementById('passwordError');
+            
+            if (input.value === SITE_PASSWORD) {
+                sessionStorage.setItem('authenticated', 'true');
+                document.getElementById('passwordScreen').classList.add('hidden');
+                document.getElementById('pageContent').classList.add('visible');
+            } else {
+                error.classList.add('show');
+                input.value = '';
+                input.focus();
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem('authenticated');
+            window.location.href = 'index.html';
+        }
+
+        checkAuth();
+    </script>
+
+
+</body>
+</html>

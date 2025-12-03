@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000000;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Password Screen */
+        .password-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .password-screen.hidden {
+            display: none;
+        }
+
+        .password-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 50px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .password-box h2 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+
+        .password-box p {
+            color: #888888;
+            margin-bottom: 30px;
+            font-size: 0.95rem;
+        }
+
+        .password-box input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 16px 20px;
+            font-size: 1rem;
+            color: #ffffff;
+            outline: none;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            text-align: center;
+            letter-spacing: 3px;
+        }
+
+        .password-box input:focus {
+            border-color: #00ccff;
+            box-shadow: 0 0 20px rgba(0, 204, 255, 0.2);
+        }
+
+        .password-box button {
+            width: 100%;
+            background: linear-gradient(135deg, #00ff88, #00ccff);
+            border: none;
+            border-radius: 12px;
+            padding: 16px 32px;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #000000;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .password-box button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .password-error {
+            color: #ff3b30;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .password-error.show {
+            display: block;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: none;
+            flex: 1;
+        }
+
+        .main-content.visible {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Navigation */
+        nav {
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-brand {
+            font-size: 1.3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00ff88, #00ccff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-links a {
+            color: #aaaaaa;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .nav-links a:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-links a.active {
+            color: #00ff88;
+            background: rgba(0, 255, 136, 0.1);
+            border-color: rgba(0, 255, 136, 0.3);
+        }
+
+        .logout-btn {
+            background: rgba(255, 59, 48, 0.1);
+            border: 1px solid rgba(255, 59, 48, 0.3);
+            color: #ff3b30 !important;
+            cursor: pointer;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 59, 48, 0.2) !important;
+            border-color: rgba(255, 59, 48, 0.5) !important;
+        }
+
+        /* Home Page Content */
+        .home-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .home-content {
+            text-align: center;
+            max-width: 800px;
+        }
+
+        .home-content h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            font-weight: 800;
+            letter-spacing: -2px;
+        }
+
+        .home-content p {
+            color: #888888;
+            font-size: 1.2rem;
+            margin-bottom: 50px;
+        }
+
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+        }
+
+        .dashboard-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-decoration: none;
+            color: #ffffff;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0.1;
+            z-index: 0;
+        }
+
+        .dashboard-card.green::before {
+            background: radial-gradient(circle at top right, #00ff88, transparent);
+        }
+
+        .dashboard-card.blue::before {
+            background: radial-gradient(circle at top right, #00ccff, transparent);
+        }
+
+        .dashboard-card.purple::before {
+            background: radial-gradient(circle at top right, #a855f7, transparent);
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .dashboard-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+            position: relative;
+            z-index: 1;
+        }
+
+        .dashboard-card p {
+            color: #888888;
+            font-size: 0.95rem;
+            margin-bottom: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .home-content h1 {
+                font-size: 2.5rem;
+            }
+
+            .dashboard-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Password Screen -->
+    <div class="password-screen" id="passwordScreen">
+        <div class="password-box">
+            <h2>🔐 Trading Dashboard</h2>
+            <p>Enter password to continue</p>
+            <input type="password" id="passwordInput" placeholder="••••••••" onkeypress="if(event.key === 'Enter') checkPassword()">
+            <button onclick="checkPassword()">Unlock</button>
+            <p class="password-error" id="passwordError">Incorrect password. Try again.</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <nav>
+            <div class="nav-brand">TRADING DASHBOARD</div>
+            <div class="nav-links">
+                <a href="index.html" class="active">Home</a>
+                <a href="calculators.html">Calculators</a>
+                <a href="portfolio.html">Portfolio</a>
+                <a href="milestones.html">Milestones</a>
+                <a href="#" class="logout-btn" onclick="logout()">Logout</a>
+            </div>
+        </nav>
+
+        <div class="home-container">
+            <div class="home-content">
+                <h1>Trading Dashboard</h1>
+                <p>Your personal trading tools and analytics</p>
+
+                <div class="dashboard-cards">
+                    <a href="calculators.html" class="dashboard-card green">
+                        <div class="card-icon">📊</div>
+                        <h3>Calculators</h3>
+                        <p>Position sizing, risk management, and projection tools</p>
+                    </a>
+
+                    <a href="portfolio.html" class="dashboard-card blue">
+                        <div class="card-icon">💼</div>
+                        <h3>Portfolio Tracker</h3>
+                        <p>Track your trades and monitor performance by week</p>
+                    </a>
+
+                    <a href="milestones.html" class="dashboard-card purple">
+                        <div class="card-icon">🎯</div>
+                        <h3>Milestones</h3>
+                        <p>Set goals and track your trading achievements</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // CHANGE THIS PASSWORD TO YOUR OWN
+        const SITE_PASSWORD = 'trading123';
+
+        // Check if already authenticated
+        function checkAuth() {
+            const isAuth = sessionStorage.getItem('authenticated');
+            if (isAuth === 'true') {
+                document.getElementById('passwordScreen').classList.add('hidden');
+                document.getElementById('mainContent').classList.add('visible');
+            }
+        }
+
+        function checkPassword() {
+            const input = document.getElementById('passwordInput');
+            const error = document.getElementById('passwordError');
+            
+            if (input.value === SITE_PASSWORD) {
+                sessionStorage.setItem('authenticated', 'true');
+                document.getElementById('passwordScreen').classList.add('hidden');
+                document.getElementById('mainContent').classList.add('visible');
+            } else {
+                error.classList.add('show');
+                input.value = '';
+                input.focus();
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem('authenticated');
+            location.reload();
+        }
+
+        // Check auth on page load
+        checkAuth();
+    </script>
+</body>
+</html>
