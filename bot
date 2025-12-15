@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BOS Detector v11 — Documentation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-tertiary: #1a1a24;
+            --bg-card: rgba(255, 255, 255, 0.03);
+            --bg-card-hover: rgba(255, 255, 255, 0.05);
+            --border-subtle: rgba(255, 255, 255, 0.06);
+            --border-medium: rgba(255, 255, 255, 0.1);
+            --text-primary: #f4f4f5;
+            --text-secondary: #a1a1aa;
+            --text-tertiary: #71717a;
+            --accent-purple: #8b5cf6;
+            --accent-blue: #3b82f6;
+            --accent-cyan: #06b6d4;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-orange: #f59e0b;
+            --glow-purple: rgba(139, 92, 246, 0.4);
+            --glow-blue: rgba(59, 130, 246, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+            font-size: 16px;
+            overflow-x: hidden;
+        }
+
+        /* Gradient orb backgrounds */
+        .gradient-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .orb-1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--glow-purple) 0%, transparent 70%);
+            top: -200px;
+            right: -100px;
+            opacity: 0.5;
+        }
+
+        .orb-2 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, var(--glow-blue) 0%, transparent 70%);
+            bottom: 20%;
+            left: -150px;
+            opacity: 0.4;
+        }
+
+        .orb-3 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.25) 0%, transparent 70%);
+            top: 50%;
+            right: -100px;
+            opacity: 0.3;
+        }
+
+        /* Layout */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 16px 0;
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        nav .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+            font-size: 18px;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+        }
+
+        .version-badge {
+            background: var(--bg-tertiary);
+            color: var(--accent-purple);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid var(--border-subtle);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 180px 0 100px;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            padding: 8px 16px;
+            border-radius: 24px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .hero-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .hero h1 {
+            font-size: clamp(48px, 8vw, 72px);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            animation: fadeInUp 0.6s ease-out 0.1s both;
+        }
+
+        .hero h1 span {
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-description {
+            font-size: 18px;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 40px;
+            animation: fadeInUp 0.6s ease-out 0.2s both;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            animation: fadeInUp 0.6s ease-out 0.3s both;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+            color: white;
+            box-shadow: 0 4px 20px var(--glow-purple);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px var(--glow-purple);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border-medium);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-medium);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Table of Contents */
+        .toc {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 80px;
+            backdrop-filter: blur(10px);
+        }
+
+        .toc h2 {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-tertiary);
+            margin-bottom: 20px;
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 12px;
+        }
+
+        .toc a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .toc a:hover {
+            color: var(--text-primary);
+            background: var(--bg-tertiary);
+            border-color: var(--border-subtle);
+        }
+
+        .toc-number {
+            width: 24px;
+            height: 24px;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--accent-purple);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Main Content */
+        main {
+            padding-bottom: 100px;
+        }
+
+        section {
+            margin-bottom: 80px;
+            scroll-margin-top: 100px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .section-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            color: var(--accent-purple);
+            background: rgba(139, 92, 246, 0.1);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        h2 {
+            font-size: 32px;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        p {
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 24px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            border-color: var(--border-medium);
+            background: var(--bg-card-hover);
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        /* Tables */
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--border-subtle);
+            background: var(--bg-card);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        thead {
+            background: var(--bg-secondary);
+        }
+
+        th {
+            padding: 14px 20px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        td {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: var(--bg-secondary);
+        }
+
+        /* Code blocks */
+        .code-block {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin: 20px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 1.8;
+            overflow-x: auto;
+            color: var(--text-secondary);
+        }
+
+        .code-block .keyword {
+            color: var(--accent-purple);
+        }
+
+        .code-block .operator {
+            color: var(--accent-cyan);
+        }
+
+        .code-block .value {
+            color: var(--accent-green);
+        }
+
+        .code-block .comment {
+            color: var(--text-tertiary);
+        }
+
+        /* Inline code */
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-tertiary);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: var(--accent-cyan);
+        }
+
+        /* Pattern Flow */
+        .pattern-flow {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding: 24px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            margin: 20px 0;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .pattern-step {
+            background: var(--bg-tertiary);
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-subtle);
+        }
+
+        .pattern-step.highlight {
+            background: rgba(139, 92, 246, 0.15);
+            border-color: var(--accent-purple);
+            color: var(--text-primary);
+        }
+
+        .pattern-arrow {
+            color: var(--text-tertiary);
+            font-size: 18px;
+        }
+
+        /* Tags */
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .tag-bullish {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-green);
+        }
+
+        .tag-bearish {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--accent-red);
+        }
+
+        .tag-neutral {
+            background: rgba(161, 161, 170, 0.15);
+            color: var(--text-secondary);
+        }
+
+        .tag-signal {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--accent-orange);
+        }
+
+        /* Signal cards */
+        .signal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .signal-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .signal-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .signal-icon.long {
+            background: rgba(16, 185, 129, 0.15);
+        }
+
+        .signal-icon.short {
+            background: rgba(239, 68, 68, 0.15);
+        }
+
+        .signal-icon.none {
+            background: var(--bg-tertiary);
+        }
+
+        .signal-content h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .signal-content p {
+            font-size: 13px;
+            color: var(--text-tertiary);
+            margin: 0;
+        }
+
+        /* Key points list */
+        .key-points {
+            list-style: none;
+            margin: 20px 0;
+        }
+
+        .key-points li {
+            position: relative;
+            padding-left: 28px;
+            margin-bottom: 12px;
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+
+        .key-points li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 8px;
+            width: 8px;
+            height: 8px;
+            background: var(--accent-purple);
+            border-radius: 2px;
+        }
+
+        /* Lifecycle diagram */
+        .lifecycle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            padding: 32px;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            margin: 24px 0;
+            border: 1px solid var(--border-subtle);
+            flex-wrap: wrap;
+        }
+
+        .lifecycle-item {
+            text-align: center;
+        }
+
+        .lifecycle-box {
+            width: 100px;
+            height: 100px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .lifecycle-box.active {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(59, 130, 246, 0.3));
+            border: 1px solid var(--accent-purple);
+        }
+
+        .lifecycle-box.mitigated {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid var(--accent-green);
+            color: var(--accent-green);
+        }
+
+        .lifecycle-box.failed {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid var(--accent-red);
+            color: var(--accent-red);
+        }
+
+        .lifecycle-label {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        .lifecycle-arrow {
+            color: var(--text-tertiary);
+            font-size: 24px;
+        }
+
+        /* Phase steps */
+        .phase-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .phase-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            padding: 24px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--border-subtle);
+            transition: all 0.3s;
+        }
+
+        .phase-step:hover {
+            border-color: var(--accent-purple);
+            transform: translateX(4px);
+        }
+
+        .phase-number {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .phase-content h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .phase-content p {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        /* Definitions grid */
+        .def-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
+            margin: 24px 0;
+        }
+
+        .def-item {
+            background: var(--bg-secondary);
+            padding: 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .def-item code {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .def-item span {
+            font-size: 13px;
+            color: var(--text-tertiary);
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--border-subtle);
+            padding: 40px 0;
+            text-align: center;
+            color: var(--text-tertiary);
+            font-size: 14px;
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero {
+                padding: 140px 0 60px;
+            }
+
+            .hero h1 {
+                font-size: 36px;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            h2 {
+                font-size: 24px;
+            }
+
+            .lifecycle {
+                flex-direction: column;
+            }
+
+            .lifecycle-arrow {
+                transform: rotate(90deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Gradient Orbs -->
+    <div class="gradient-orb orb-1"></div>
+    <div class="gradient-orb orb-2"></div>
+    <div class="gradient-orb orb-3"></div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">T</div>
+                TRADING DASHBOARD
+            </a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="calculators.html">Calculators</a>
+                <a href="portfolio.html">Portfolio</a>
+                <a href="milestones.html">Milestones</a>
+                <a href="bos-detector.html" style="color: var(--accent-purple); background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 10px;">BOS Docs</a>
+                <a href="#" class="logout-btn" onclick="logout()" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: var(--accent-red); border-radius: 10px;">Logout</a>
+            </div>
+            <span class="version-badge">v11</span>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <header class="hero">
+        <div class="container">
+            <div class="hero-badge">Market Structure Analysis System</div>
+            <h1>BOS Detector <span>Documentation</span></h1>
+            <p class="hero-description">
+                A complete reference for Break of Structure events, Market Structure Flips, 
+                supply/demand zones, and internal structure patterns for trade signal generation.
+            </p>
+            <div class="hero-buttons">
+                <a href="#candles" class="btn btn-primary">Get Started</a>
+                <a href="#quick-ref" class="btn btn-secondary">Quick Reference</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Table of Contents -->
+        <div class="toc" id="quick-ref">
+            <h2>Quick Navigation</h2>
+            <div class="toc-grid">
+                <a href="#candles"><span class="toc-number">01</span>Candle Classification</a>
+                <a href="#bos-patterns"><span class="toc-number">02</span>BOS Patterns</a>
+                <a href="#staircase"><span class="toc-number">03</span>Stair-casing</a>
+                <a href="#locking"><span class="toc-number">04</span>HH/LL Locking</a>
+                <a href="#hl-lh"><span class="toc-number">05</span>HL/LH Calculation</a>
+                <a href="#msf"><span class="toc-number">06</span>Market Structure Flip</a>
+                <a href="#racing"><span class="toc-number">07</span>Initial Trend Detection</a>
+                <a href="#local"><span class="toc-number">08</span>Local High/Low Detection</a>
+                <a href="#zones"><span class="toc-number">09</span>Zone Lifecycle</a>
+                <a href="#internal"><span class="toc-number">10</span>Internal Structure</a>
+                <a href="#phases"><span class="toc-number">11</span>Phase System</a>
+                <a href="#signals"><span class="toc-number">12</span>Trade Signals</a>
+            </div>
+        </div>
+
+        <!-- Definitions -->
+        <section id="definitions">
+            <div class="section-header">
+                <span class="section-number">00</span>
+                <h2>Core Definitions</h2>
+            </div>
+            <div class="def-grid">
+                <div class="def-item">
+                    <code>BOS</code>
+                    <span>Break of Structure — trend continuation signal</span>
+                </div>
+                <div class="def-item">
+                    <code>MSF</code>
+                    <span>Market Structure Flip — trend reversal signal</span>
+                </div>
+                <div class="def-item">
+                    <code>HH</code>
+                    <span>Higher High</span>
+                </div>
+                <div class="def-item">
+                    <code>HL</code>
+                    <span>Higher Low</span>
+                </div>
+                <div class="def-item">
+                    <code>LH</code>
+                    <span>Lower High</span>
+                </div>
+                <div class="def-item">
+                    <code>LL</code>
+                    <span>Lower Low</span>
+                </div>
+                <div class="def-item">
+                    <code>iBOS</code>
+                    <span>Internal Break of Structure</span>
+                </div>
+                <div class="def-item">
+                    <code>iMSF</code>
+                    <span>Internal Market Structure Flip</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 1: Candle Classification -->
+        <section id="candles">
+            <div class="section-header">
+                <span class="section-number">01</span>
+                <h2>Candle Classification</h2>
+            </div>
+            <p>Every candle is classified into one of three types based on the relationship between open and close prices.</p>
+            
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Condition</th>
+                            <th>Behavior</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="tag tag-bullish">Bullish</span></td>
+                            <td><code>close > open</code></td>
+                            <td>Counts toward bullish patterns</td>
+                        </tr>
+                        <tr>
+                            <td><span class="tag tag-bearish">Bearish</span></td>
+                            <td><code>close < open</code></td>
+                            <td>Counts toward bearish patterns</td>
+                        </tr>
+                        <tr>
+                            <td><span class="tag tag-neutral">Doji</span></td>
+                            <td><code>close = open</code></td>
+                            <td>Ignored in all pattern detection</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="card" style="margin-top: 24px; border-left: 3px solid var(--accent-orange);">
+                <p style="margin: 0;"><strong>Important:</strong> Doji candles are completely skipped during pattern detection. They do not count toward pullback or reversal sequences.</p>
+            </div>
+        </section>
+
+        <!-- Section 2: BOS Patterns -->
+        <section id="bos-patterns">
+            <div class="section-header">
+                <span class="section-number">02</span>
+                <h2>BOS Patterns</h2>
+            </div>
+            
+            <div class="card-grid">
+                <div class="card">
+                    <span class="tag tag-bullish" style="margin-bottom: 16px;">Bullish BOS</span>
+                    <h3>Uptrend Confirmation</h3>
+                    <p>Confirms an uptrend when price closes above a reference high after a valid pullback and reversal sequence.</p>
+                    <div class="pattern-flow">
+                        <span class="pattern-step">Reference High</span>
+                        <span class="pattern-arrow">→</span>
+                        <span class="pattern-step">2+ Bearish</span>
+                        <span class="pattern-arrow">→</span>
+                        <span class="pattern-step">2+ Bullish</span>
+                        <span class="pattern-arrow">→</span>
+                        <span class="pattern-step highlight">Close > Ref High</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <span class="tag tag-bearish" style="margin-bottom: 16px;">Bearish BOS</span>
+                    <h3>Downtrend Confirmation</h3>
+                    <p>Confirms a downtrend when price closes below a reference low after a valid pullback and reversal sequence.</p>
+                    <div class="pattern-flow">
+                        <span class="pattern-step">Reference Low</span>
+                        <span class="pattern-arrow">→</span>
+                        <span class="pattern-step">2+ Bullish</span>
+                        <span class="pattern-arrow">→</span>
+                        <span class="pattern-step">2+ Bearish</span>
+                        <span class="pattern-arrow">→</span>
+                        <span class="pattern-step highlight">Close < Ref Low</span>
+                    </div>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 32px;">Key Points</h3>
+            <ul class="key-points">
+                <li>The reference high/low is the <strong>wick</strong>, not the body</li>
+                <li>Confirmation requires the <strong>body close</strong> to exceed the reference</li>
+                <li>Pullback must be 2+ consecutive opposite-colored candles</li>
+                <li>Reversal must be 2+ consecutive trend-direction candles</li>
+            </ul>
+        </section>
+
+        <!-- Section 3: Stair-casing -->
+        <section id="staircase">
+            <div class="section-header">
+                <span class="section-number">03</span>
+                <h2>Stair-casing</h2>
+            </div>
+            <p>Stair-casing occurs when a wick exceeds the reference level but the body does not close beyond it. This updates the reference to a more extreme level without triggering a BOS.</p>
+            
+            <div class="card-grid">
+                <div class="card">
+                    <span class="tag tag-bullish" style="margin-bottom: 16px;">Bullish Staircase</span>
+                    <div class="code-block">
+<span class="keyword">Condition:</span> candle.high <span class="operator">></span> refHigh <span class="operator">AND</span> candle.close <span class="operator"><=</span> refHigh
+<span class="keyword">Result:</span> refHigh <span class="operator">=</span> <span class="value">new wick high</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <span class="tag tag-bearish" style="margin-bottom: 16px;">Bearish Staircase</span>
+                    <div class="code-block">
+<span class="keyword">Condition:</span> candle.low <span class="operator"><</span> refLow <span class="operator">AND</span> candle.close <span class="operator">>=</span> refLow
+<span class="keyword">Result:</span> refLow <span class="operator">=</span> <span class="value">new wick low</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card" style="margin-top: 24px; border-left: 3px solid var(--accent-purple);">
+                <p style="margin: 0;"><strong>Note:</strong> Stair-casing only occurs during the <code>WATCHING</code> phase.</p>
+            </div>
+        </section>
+
+        <!-- Section 4: HH/LL Locking -->
+        <section id="locking">
+            <div class="section-header">
+                <span class="section-number">04</span>
+                <h2>HH/LL Locking</h2>
+            </div>
+            <p>Higher Highs and Lower Lows are "locked" (confirmed) after a pullback is detected. This prevents premature structure point identification.</p>
+            
+            <div class="card-grid">
+                <div class="card">
+                    <span class="tag tag-bullish" style="margin-bottom: 16px;">HH Locking (Bullish Trend)</span>
+                    <ol class="key-points" style="counter-reset: step;">
+                        <li>BOS occurs → HH is pending</li>
+                        <li>2+ bearish candles appear → pullback confirmed</li>
+                        <li>HH is locked at highest high from BOS candle to first pullback candle</li>
+                    </ol>
+                </div>
+                <div class="card">
+                    <span class="tag tag-bearish" style="margin-bottom: 16px;">LL Locking (Bearish Trend)</span>
+                    <ol class="key-points">
+                        <li>BOS occurs → LL is pending</li>
+                        <li>2+ bullish candles appear → pullback confirmed</li>
+                        <li>LL is locked at lowest low from BOS candle to first pullback candle</li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: HL/LH Calculation -->
+        <section id="hl-lh">
+            <div class="section-header">
+                <span class="section-number">05</span>
+                <h2>HL/LH Calculation</h2>
+            </div>
+            <p>Higher Lows and Lower Highs are calculated after the corresponding HH/LL is locked. These become the MSF trigger levels.</p>
+            
+            <div class="card-grid">
+                <div class="card">
+                    <span class="tag tag-bullish" style="margin-bottom: 16px;">HL Calculation (Bullish)</span>
+                    <div class="code-block">
+<span class="keyword">Search range:</span> After previous HH → current candle
+<span class="keyword">Value:</span> <span class="value">Lowest low</span> in the search range
+<span class="keyword">Purpose:</span> Becomes the bearish MSF trigger level
+                    </div>
+                </div>
+                <div class="card">
+                    <span class="tag tag-bearish" style="margin-bottom: 16px;">LH Calculation (Bearish)</span>
+                    <div class="code-block">
+<span class="keyword">Search range:</span> After previous LL → current candle
+<span class="keyword">Value:</span> <span class="value">Highest high</span> in the search range
+<span class="keyword">Purpose:</span> Becomes the bullish MSF trigger level
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: MSF -->
+        <section id="msf">
+            <div class="section-header">
+                <span class="section-number">06</span>
+                <h2>Market Structure Flip</h2>
+            </div>
+            <p>An MSF occurs when price breaks the confirmed HL or LH, signaling a potential trend reversal.</p>
+            
+            <div class="card-grid">
+                <div class="card">
+                    <span class="tag tag-bearish" style="margin-bottom: 16px;">MSF to Bearish</span>
+                    <div class="code-block">
+<span class="keyword">Trigger:</span> candle.close <span class="operator"><</span> confirmedHL
+<span class="keyword">Result:</span> Trend flips <span class="value">bullish → bearish</span>
+<span class="keyword">Update:</span> Previous HH becomes new LH
+                    </div>
+                </div>
+                <div class="card">
+                    <span class="tag tag-bullish" style="margin-bottom: 16px;">MSF to Bullish</span>
+                    <div class="code-block">
+<span class="keyword">Trigger:</span> candle.close <span class="operator">></span> confirmedLH
+<span class="keyword">Result:</span> Trend flips <span class="value">bearish → bullish</span>
+<span class="keyword">Update:</span> Previous LL becomes new HL
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: Racing -->
+        <section id="racing">
+            <div class="section-header">
+                <span class="section-number">07</span>
+                <h2>Initial Trend Detection</h2>
+            </div>
+            <p>Before a trend is established, both bullish and bearish patterns are tracked simultaneously in a "racing" mode. The first pattern to complete a BOS establishes the initial trend.</p>
+            
+            <ul class="key-points">
+                <li>Both patterns start from local high/low reference points</li>
+                <li>Both track pullbacks and reversals independently</li>
+                <li>First to achieve a body close beyond reference wins</li>
+            </ul>
+        </section>
+
+        <!-- Section 8: Local High/Low -->
+        <section id="local">
+            <div class="section-header">
+                <span class="section-number">08</span>
+                <h2>Local High/Low Detection</h2>
+            </div>
+            <p>Local highs and lows (swing points) are identified for initial reference establishment.</p>
+            
+            <div class="code-block">
+<span class="keyword">Local High:</span> Candle's high <span class="operator">></span> all neighbors within lookback <span class="comment">(default 5)</span>
+<span class="keyword">Local Low:</span> Candle's low <span class="operator"><</span> all neighbors within lookback <span class="comment">(default 5)</span>
+<span class="keyword">Scan range:</span> First <span class="value">150</span> candles after lookback buffer
+            </div>
+            
+            <div class="card" style="margin-top: 24px; border-left: 3px solid var(--accent-cyan);">
+                <p style="margin: 0;"><strong>Requirements:</strong> Minimum 15+ candles required. Both local high AND low must be found for structure tracking to begin.</p>
+            </div>
+        </section>
+
+        <!-- Section 9: Zones -->
+        <section id="zones">
+            <div class="section-header">
+                <span class="section-number">09</span>
+                <h2>Zone Creation & Lifecycle</h2>
+            </div>
+            <p>Supply and demand zones are created at BOS and MSF events, tracking areas of institutional interest.</p>
+            
+            <div class="card-grid">
+                <div class="card">
+                    <span class="tag tag-bullish" style="margin-bottom: 16px;">Demand Zone</span>
+                    <p>Created at Bullish BOS</p>
+                    <div class="code-block">
+<span class="keyword">Top:</span> HH wick
+<span class="keyword">Bottom:</span> HL wick
+                    </div>
+                </div>
+                <div class="card">
+                    <span class="tag tag-bearish" style="margin-bottom: 16px;">Supply Zone</span>
+                    <p>Created at Bearish BOS</p>
+                    <div class="code-block">
+<span class="keyword">Top:</span> LH wick
+<span class="keyword">Bottom:</span> LL wick
+                    </div>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 32px;">Zone Status Lifecycle</h3>
+            <div class="lifecycle">
+                <div class="lifecycle-item">
+                    <div class="lifecycle-box active">Active</div>
+                    <div class="lifecycle-label">Fresh zone, no interaction</div>
+                </div>
+                <span class="lifecycle-arrow">→</span>
+                <div class="lifecycle-item">
+                    <div class="lifecycle-box mitigated">Mitigated</div>
+                    <div class="lifecycle-label">Touched + BOS in trend direction</div>
+                </div>
+                <span class="lifecycle-arrow">or</span>
+                <div class="lifecycle-item">
+                    <div class="lifecycle-box failed">Failed</div>
+                    <div class="lifecycle-label">MSF occurred first</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 10: Internal Structure -->
+        <section id="internal">
+            <div class="section-header">
+                <span class="section-number">10</span>
+                <h2>Internal Structure</h2>
+            </div>
+            <p>Internal structure tracks smaller-scale price movements within the boundaries of the main trend structure. This is used for trade entry timing.</p>
+            
+            <div class="card">
+                <h3>Initialization</h3>
+                <div class="table-wrapper" style="margin-top: 16px;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Main Trend</th>
+                                <th>Starts From</th>
+                                <th>Tracks</th>
+                                <th>Boundary</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="tag tag-bullish">Uptrend</span></td>
+                                <td>Locked HH</td>
+                                <td>Bearish internal (counter-trend)</td>
+                                <td>Must stay above confirmed HL</td>
+                            </tr>
+                            <tr>
+                                <td><span class="tag tag-bearish">Downtrend</span></td>
+                                <td>Locked LL</td>
+                                <td>Bullish internal (counter-trend)</td>
+                                <td>Must stay below confirmed LH</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 24px;">
+                <h3>Internal BOS (iBOS)</h3>
+                <ul class="key-points">
+                    <li>Follows same 2-candle pullback/reversal rules as regular BOS</li>
+                    <li>Each iBOS updates the iMSF trigger level (most recent iHL/iLH)</li>
+                </ul>
+            </div>
+
+            <div class="card" style="margin-top: 24px;">
+                <h3>Internal MSF (iMSF)</h3>
+                <div class="code-block">
+<span class="keyword">iMSF_BEARISH:</span> candle.close <span class="operator"><</span> iConfirmedHL
+<span class="keyword">iMSF_BULLISH:</span> candle.close <span class="operator">></span> iConfirmedLH
+
+<span class="comment">// After iMSF: Structure points transform</span>
+iHH <span class="operator">→</span> iLH  <span class="comment">or</span>  iLL <span class="operator">→</span> iHL
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 24px; border-left: 3px solid var(--accent-purple);">
+                <h3>Internal Structure Cycling</h3>
+                <ul class="key-points">
+                    <li>After iMSF, internal structure continues (does not reset)</li>
+                    <li>Can have multiple iMSF cycles within the same regular trend</li>
+                    <li>Internal structure only ends when regular boundary is breached</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 11: Phases -->
+        <section id="phases">
+            <div class="section-header">
+                <span class="section-number">11</span>
+                <h2>Phase System</h2>
+            </div>
+            <p>The detector operates in three phases for pattern detection.</p>
+            
+            <div class="phase-steps">
+                <div class="phase-step">
+                    <div class="phase-number">1</div>
+                    <div class="phase-content">
+                        <h4>FIND_PULLBACK</h4>
+                        <p>Looking for 2+ opposite-colored candles</p>
+                    </div>
+                </div>
+                <div class="phase-step">
+                    <div class="phase-number">2</div>
+                    <div class="phase-content">
+                        <h4>FIND_REVERSAL</h4>
+                        <p>Pullback confirmed, looking for 2+ trend-direction candles</p>
+                    </div>
+                </div>
+                <div class="phase-step">
+                    <div class="phase-number">3</div>
+                    <div class="phase-content">
+                        <h4>WATCHING</h4>
+                        <p>Reversal confirmed, waiting for body close beyond reference</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 12: Trade Signals -->
+        <section id="signals">
+            <div class="section-header">
+                <span class="section-number">12</span>
+                <h2>Trade Signals</h2>
+            </div>
+            <p>Trade signals are generated when iMSF direction matches the regular trend direction.</p>
+            
+            <div class="signal-grid">
+                <div class="signal-card">
+                    <div class="signal-icon short">📉</div>
+                    <div class="signal-content">
+                        <h4>SHORT Signal</h4>
+                        <p>Bearish trend + iMSF_BEARISH</p>
+                    </div>
+                </div>
+                <div class="signal-card">
+                    <div class="signal-icon long">📈</div>
+                    <div class="signal-content">
+                        <h4>LONG Signal</h4>
+                        <p>Bullish trend + iMSF_BULLISH</p>
+                    </div>
+                </div>
+                <div class="signal-card">
+                    <div class="signal-icon none">⏸</div>
+                    <div class="signal-content">
+                        <h4>No Signal</h4>
+                        <p>Bearish trend + iMSF_BULLISH</p>
+                    </div>
+                </div>
+                <div class="signal-card">
+                    <div class="signal-icon none">⏸</div>
+                    <div class="signal-content">
+                        <h4>No Signal</h4>
+                        <p>Bullish trend + iMSF_BEARISH</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 32px;">
+                <h3>Zone Confluence</h3>
+                <p>The <code>zoneConfluence</code> flag on trade signals indicates whether price touched the regular (main) zone before the trade signal was generated.</p>
+                <div class="code-block">
+<span class="keyword">zoneConfluence:</span> <span class="value">true</span>  <span class="comment">// Price touched main zone before iMSF — adds confluence</span>
+<span class="keyword">zoneConfluence:</span> <span class="value">false</span> <span class="comment">// iMSF occurred without main zone touch</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>BOS Detector v11 Documentation</p>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // Add subtle parallax to gradient orbs
+        document.addEventListener('mousemove', (e) => {
+            const orbs = document.querySelectorAll('.gradient-orb');
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+            
+            orbs.forEach((orb, index) => {
+                const speed = (index + 1) * 20;
+                orb.style.transform = `translate(${x * speed}px, ${y * speed}px)`;
+            });
+        });
+
+        // Fade in sections on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('section').forEach(section => {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(30px)';
+            section.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+            observer.observe(section);
+        });
+
+        // Logout function
+        function logout() {
+            sessionStorage.removeItem('authenticated');
+            window.location.href = 'index.html';
+        }
+
+        // Check authentication
+        function checkAuth() {
+            const isAuth = sessionStorage.getItem('authenticated');
+            if (isAuth !== 'true') {
+                window.location.href = 'index.html';
+            }
+        }
+        checkAuth();
+    </script>
+</body>
+</html>
